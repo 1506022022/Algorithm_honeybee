@@ -34,7 +34,6 @@ namespace Algorithm_honeybee
 
         public static int DirectSet(Vector2 current, Vector2 go,Hive hive) 
         {
-
             Direction dir = Direction.non;
             if (current != go) { 
 
@@ -47,16 +46,21 @@ namespace Algorithm_honeybee
                 {
                     // 상향 이동 시
                     if ((dir & Direction.up) != Direction.non) {
-                        if (hive.rooms[(int)current.Y][(int)current.X].neighbor[0] == null) dir |= Direction.right;
-                        else if (hive.rooms[(int)current.Y][(int)current.X].neighbor[0].position.Y
+                       
+                        if (hive.rooms[(int)current.X][(int)current.Y].neighbor[0] == null) dir |= Direction.right;
+                        else if (hive.rooms[(int)current.X][(int)current.Y].neighbor[0].position.Y
                             == go.Y) dir |= Direction.left;
                         else dir |= Direction.right;
                             }
 
+
+
+
+
                     // 하향 이동 시
                     if ((dir & Direction.down)!= Direction.non){
-                        if (hive.rooms[(int)current.Y][(int)current.X].neighbor[4] == null) dir |= Direction.right;
-                        else if (hive.rooms[(int)current.Y][(int)current.X].neighbor[4].position.Y
+                        if (hive.rooms[(int)current.X][(int)current.Y].neighbor[4] == null) dir |= Direction.right;
+                        else if (hive.rooms[(int)current.X][(int)current.Y].neighbor[4].position.Y
                             == go.Y) dir |= Direction.left;
                         else dir |= Direction.right;
                     }

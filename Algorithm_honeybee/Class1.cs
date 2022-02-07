@@ -17,32 +17,14 @@ namespace Algorithm_honeybee
 
         public static void Main()
         {
+            WriteLine("프로그램 시작");
             Hive hive = new Hive();
+            MoveManager moveManager = new MoveManager();
 
-
-            Bee bee = new Bee(hive);
-
-            bee.Fly(new Vector2() { X=0,Y=1});
+            WriteLine(moveManager.Simulation(hive));
 
 
 
-            Print();
-
-            void Print()
-            {
-                foreach (var room in hive.rooms)
-                    foreach (var r in room)
-                    {
-                        WriteLine("위치 : {0} \t이웃 : {1} \t에너지 : {2} \t페로몬 : ", r.position, "no", r.energy);
-                        foreach (var temp in r.isPheromone)
-                            Write("{0} ", temp);
-                        WriteLine();
-                        WriteLine("좌상 : {0}\t우상 : {1}\t좌 : {2}\t우 : {3}\t좌하 : {4}\t우하 : {5}", r.neighbor[0], r.neighbor[1], r.neighbor[2], r.neighbor[3], r.neighbor[4], r.neighbor[5]);
-                        WriteLine();
-
-                        WriteLine("모은 에너지 : {0}", bee.energy);
-                    }
-            }
         }
 
     }

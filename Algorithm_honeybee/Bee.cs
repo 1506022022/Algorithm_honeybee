@@ -8,19 +8,21 @@ using static System.Console;
 
 namespace Algorithm_honeybee
 {
+
     public class Bee
     {
         public int energy;
         public Vector2 position;
         public Hive hive;
 
-        public Bee(Hive hive)
+        public Bee(Vector2 position,Hive hive)
         {
-            position = new Vector2() { X = 0, Y = 0 };
+            this.position = position;
             this.hive = hive;
+            
             GetEnergy();
         }
-        public void Move(Vector2 go)
+        bool Move(Vector2 go)
         {
             // 현재 위치
             int row = (int)position.X;
@@ -29,10 +31,10 @@ namespace Algorithm_honeybee
             // 이동
             foreach (var room in hive.rooms[row][column].neighbor)
                 if (room != null && room.position == go) {
-                    Pheromone(); return; 
+                    Pheromone(); return true; 
                 }
-                WriteLine("이동할 수 없는 경로입니다.");
 
+            return false;
             // 방문 처리
             void Pheromone()
             {
@@ -49,8 +51,9 @@ namespace Algorithm_honeybee
 
             }
         }
-        public void Fly(Vector2 go) 
+        void Fly(Vector2 go) 
         {
+
             while (position != go)
             {
                 // 이동 방향 지정
@@ -61,22 +64,68 @@ namespace Algorithm_honeybee
                     energy -= hive.moveCost;
 
                 // 이동
-                Move(hive.rooms[(int)position.X][(int)position.Y].neighbor[dir].position);
+                try{
+                    if (hive.rooms[(int)position.X][(int)position.Y].neighbor[dir] == null) throw new Exception();
+                    Move(hive.rooms[(int)position.X][(int)position.Y].neighbor[dir].position);
+                }
+                catch(Exception e)  
+                {
+                    WriteLine(hive.rooms[(int)position.X][(int)position.Y].position);
+                    WriteLine(dir);
+                    WriteLine("예외 발생");
+                    hive.WriteHive();
+                    ReadLine();
+                }
+                finally { }
                 
             }
             GetEnergy();
             
         }
-        void Walk(Vector2 go) 
+        bool Walk(Vector2 go) 
         {
+            // 성공 여부
+            bool isSuccess = false;
+
+
+
             // 이동 후 에너지 흡수
-            Move(go);
-            GetEnergy();
+            isSuccess = Move(go);
+
+            if (isSuccess)
+            {
+                GetEnergy();
+
+            }
+
+            
+            return isSuccess;
+        }
+        public void Go(Vector2 go)
+        {
+
+                if (position != go)
+                    if (hive.rooms[(int)position.X][(int)position.Y].neighbor.Any((n) => n != null && n.position == go))
+                        Walk(go); 
+                    else
+                        Fly(go);
+
         }
         void GetEnergy()
         {
+            
             energy += hive.rooms[(int)position.X][(int)position.Y].energy;
             hive.rooms[(int)position.X][(int)position.Y].energy = 0;
+        }
+        public static Bee Copy(Bee original)
+        {
+            Bee copy = new Bee(original.position, Hive.Copy(original.hive));
+
+            copy.hive = Hive.Copy(original.hive);
+            copy.energy = original.energy;
+            copy.position = original.position;
+
+            return copy;
         }
 
     }
