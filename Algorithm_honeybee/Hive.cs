@@ -60,7 +60,7 @@ namespace Algorithm_honeybee
                         {
                             energy = int.Parse(energy),
                             position = new Vector2() { X = row, Y = column },
-                            isPheromone = new bool[] { false, false, false, false, false, false },
+                            isPheromone = new bool(),
                             neighbor = new Room?[] {null,null,null,null,null,null }
                         });
                         column++;
@@ -96,7 +96,7 @@ namespace Algorithm_honeybee
                 bool isUp = row < midle;
 
 
-
+                
                 // 벌집의 중간부분일때
                 if (row == midle)
                 {
@@ -126,9 +126,9 @@ namespace Algorithm_honeybee
                     // 우
                     rooms[row][column].neighbor[right] = roomExists(row, column + 1);
                     // 좌하
-                    rooms[row][column].neighbor[leftDown] = roomExists(row + 1, column - 1);
+                    rooms[row][column].neighbor[leftDown] = roomExists(row + 1, column);
                     // 우하
-                    rooms[row][column].neighbor[rightDown] = roomExists(row + 1, column);
+                    rooms[row][column].neighbor[rightDown] = roomExists(row + 1, column+1);
                 }
 
                 // 하부일때

@@ -14,109 +14,101 @@ namespace Algorithm_honeybee
         public int energy;
         public Vector2 position;
         public Hive hive;
+        public Moving action;
 
         public Bee(Vector2 position,Hive hive)
         {
             this.position = position;
             this.hive = hive;
-            
+
+            Pheromone();
             GetEnergy();
+
         }
-        bool Move(Vector2 go)
+       
+
+        void Pheromone()
         {
-            // 현재 위치
-            int row = (int)position.X;
-            int column = (int)position.Y;
-
-            // 이동
-            foreach (var room in hive.rooms[row][column].neighbor)
-                if (room != null && room.position == go) {
-                    Pheromone(); return true; 
-                }
-
-            return false;
-            // 방문 처리
-            void Pheromone()
-            {
-                // 위치 확인 후 이동경로 체크
-                for (int i = 0; i < 6; i++)
-                    if (hive.rooms[row][column].neighbor[i] != null&&
-                        hive.rooms[row][column].neighbor[i].position == go)
-                    {
-
-                        hive.rooms[row][column].isPheromone[i] = true;
-                        hive.rooms[(int)go.X][(int)go.Y].isPheromone[5 - i] = true;
-                        position = go;
-                    }
-
-            }
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
+            current.isPheromone = true;
         }
-        void Fly(Vector2 go) 
+        void MoveCost() 
         {
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
+            if (current.isPheromone == false) energy -= hive.moveCost;
 
-            while (position != go)
-            {
-                // 이동 방향 지정
-                var dir = Constant.DirectSet(position, go, hive);
-
-                // 처음 지나갈 때는 이동비용 지불하고
-                if (!hive.rooms[(int)position.X][(int)position.Y].isPheromone[dir])
-                    energy -= hive.moveCost;
-
-                // 이동
-                try{
-                    if (hive.rooms[(int)position.X][(int)position.Y].neighbor[dir] == null) throw new Exception();
-                    Move(hive.rooms[(int)position.X][(int)position.Y].neighbor[dir].position);
-                }
-                catch(Exception e)  
-                {
-                    WriteLine(hive.rooms[(int)position.X][(int)position.Y].position);
-                    WriteLine(dir);
-                    WriteLine("예외 발생");
-                    hive.WriteHive();
-                    ReadLine();
-                }
-                finally { }
-                
-            }
-            GetEnergy();
-            
         }
-        bool Walk(Vector2 go) 
+        public void Fly(Vector2 go) 
         {
-            // 성공 여부
-            bool isSuccess = false;
+            if (go == position) return;
+
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
 
 
 
-            // 이동 후 에너지 흡수
-            isSuccess = Move(go);
+            bool isPossible = current.neighbor.Any((n) => n != null && n.position == go);
+            WriteLine("{0} 에서 {1} 으로 날아서 이동!", position, go);
+            position = go;
+            MoveCost();
 
-            if (isSuccess)
+            hive.rooms[(int)position.X][(int)position.Y].energy = 0;
+            Pheromone();
+
+
+        }
+        public void Walk(Vector2 go) 
+        {
+            if (go == position) return;
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
+            bool isPossible = current.neighbor.Any((n) => n != null && n.position == go);
+
+            if (isPossible)
             {
+                WriteLine("{0} 에서 {1} 으로 걸어서 이동!", position, go);
+                position = go;
+                Pheromone();
                 GetEnergy();
 
+
             }
+            else WriteLine("{0} {1} 이동불가능",position,go);
+
+        }
+        public void Move(Vector2 go)
+        {
+            if (go == position) return;
+
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
+            Room Go = hive.rooms[(int)go.X][(int)go.Y];
 
             
-            return isSuccess;
+            bool isPossible = current.neighbor.Any((n) => n != null && n.position == go);
+
+
+            
+            if (Go.energy<(-hive.moveCost) && (!Go.isPheromone) || !isPossible)
+            { 
+                Fly(go);
+
+            }else
+            {
+                Walk(go);
+            }
         }
-        public void Go(Vector2 go)
+
+        public void Go(Vector2 go) 
         {
-
-                if (position != go)
-                    if (hive.rooms[(int)position.X][(int)position.Y].neighbor.Any((n) => n != null && n.position == go))
-                        Walk(go); 
-                    else
-                        Fly(go);
-
+            position = go;        
         }
+        
+
         void GetEnergy()
         {
-            
-            energy += hive.rooms[(int)position.X][(int)position.Y].energy;
-            hive.rooms[(int)position.X][(int)position.Y].energy = 0;
+            Room current = hive.rooms[(int)position.X][(int)position.Y];
+            energy += current.energy;
+            current.energy = 0;
         }
+
         public static Bee Copy(Bee original)
         {
             Bee copy = new Bee(original.position, Hive.Copy(original.hive));
